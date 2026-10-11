@@ -12,8 +12,15 @@ import com.adhan.app.adhanApp
 import com.adhan.app.alert.AlertPlaybackListener
 
 /**
- * Keeps the process alive for the few seconds an alarm is audible.
- * This is not an idle foreground service: it stops when playback ends.
+ * Keeps the process alive while an alarm is audible, then stops.
+ *
+ * The type stays `shortService`. Official docs allow an exact alarm to start
+ * a foreground service from the background, and they describe `mediaPlayback`
+ * as continued audio playback with no extra runtime permission. They do not
+ * say that a `setAlarmClock` broadcast may use `mediaPlayback`. The type that
+ * names `USE_EXACT_ALARM` is `systemExempted`, which is reserved for system
+ * integrations. Until that is explicit, playback stops in [onTimeout] instead
+ * of switching types.
  */
 class AlarmPlaybackService : Service() {
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -55,6 +62,20 @@ class AlarmPlaybackService : Service() {
             stopAsForeground()
         }
         return START_NOT_STICKY
+    }
+
+    override fun onTimeout(startId: Int) {
+        stopForTimeout(startId)
+    }
+
+    override fun onTimeout(startId: Int, fgsType: Int) {
+        stopForTimeout(startId)
+    }
+
+    private fun stopForTimeout(startId: Int) {
+        Log.w(TAG, "shortService timeout startId=$startId")
+        runCatching { adhanApp().alertPlayer.stop() }
+        stopAsForeground()
     }
 
     override fun onDestroy() {

@@ -137,3 +137,7 @@ com.adhan.app
 ```
 
 العقود الثابتة: `Alert` و`AlertPlayer` و`AlertScheduler` و`PrayerEngine` و`GeofenceEngine` و`AlertStore`.
+
+## Phase 1 manual check
+
+On a phone running Android 14 or newer, set the ring length to until stop, arm a prayer or clock alarm a minute ahead, and leave the phone locked. The tone must start. About four minutes later the tone must have stopped and the app must not show an “app not responding” dialog. `adb logcat -s Adhan` should contain `shortService timeout`. This was not run on a device in the Phase 1 change.
