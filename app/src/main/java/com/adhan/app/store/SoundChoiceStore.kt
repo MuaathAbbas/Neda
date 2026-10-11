@@ -45,12 +45,19 @@ class PreferencesSoundChoiceStore(
         prefs.edit().putInt(KEY_RING_SECONDS, seconds.coerceIn(0, 600)).apply()
     }
 
+    fun fadeInSeconds(): Int = allowedFade(prefs.getInt(KEY_FADE_IN_SECONDS, 0))
+
+    fun setFadeInSeconds(seconds: Int) {
+        prefs.edit().putInt(KEY_FADE_IN_SECONDS, allowedFade(seconds)).apply()
+    }
+
     fun settings(role: SoundRole, loop: Boolean = true): SoundSettings {
         return SoundSettings(
             soundUri = read(role),
             vibrate = vibrateEnabled(),
             loop = loop,
             ringSeconds = ringSeconds(),
+            fadeInSeconds = fadeInSeconds(),
         )
     }
 
@@ -78,5 +85,8 @@ class PreferencesSoundChoiceStore(
         const val PREFS = "adhan_sounds"
         const val KEY_VIBRATE = "vibrate"
         const val KEY_RING_SECONDS = "ring_seconds"
+        const val KEY_FADE_IN_SECONDS = "fade_in_seconds"
+
+        private fun allowedFade(seconds: Int): Int = if (seconds == 4 || seconds == 10) seconds else 0
     }
 }

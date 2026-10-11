@@ -25,6 +25,7 @@ class AlertJsonTest {
                     vibrate = false,
                     loop = true,
                     ringSeconds = 30,
+                    fadeInSeconds = 4,
                 ),
                 bypassDnd = false,
                 enabled = false,
@@ -74,6 +75,27 @@ class AlertJsonTest {
         assertEquals(TimeRepeat.ONCE, time.repeat)
         assertEquals(null, time.hour)
         assertEquals(null, time.minute)
+    }
+
+    @Test
+    fun missingFadeInSecondsStaysOff() {
+        val json = JSONObject()
+            .put("id", "old")
+            .put("type", "TIME")
+            .put("scheduleKind", "TIME")
+            .put("triggerAtEpochMillis", 10L)
+        assertEquals(0, AlertJson.decode(json).sound.fadeInSeconds)
+    }
+
+    @Test
+    fun unknownFadeInSecondsStaysOff() {
+        val json = JSONObject()
+            .put("id", "old")
+            .put("type", "TIME")
+            .put("scheduleKind", "TIME")
+            .put("triggerAtEpochMillis", 10L)
+            .put("fadeInSeconds", 7)
+        assertEquals(0, AlertJson.decode(json).sound.fadeInSeconds)
     }
 
     @Test

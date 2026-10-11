@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import android.os.PowerManager
 import android.os.VibrationAttributes
 import android.os.VibrationEffect
@@ -18,6 +19,7 @@ import android.util.Log
 import androidx.core.net.toUri
 import com.adhan.app.R
 import com.adhan.app.domain.Alert
+import com.adhan.app.domain.FadeIn
 
 /**
  * Alarm-stream playback. [AudioAttributes.USAGE_ALARM] is intentional:
@@ -41,6 +43,7 @@ class AlarmAlertPlayer(
     private var activeId: String? = null
     private var focusRequest: AudioFocusRequest? = null
     private var stopRunnable: Runnable? = null
+    private var fadeRunnable: Runnable? = null
 
     private val focusListener = AudioManager.OnAudioFocusChangeListener { change ->
         Log.i(TAG, "Audio focus change $change; alarm playback continues")
@@ -58,7 +61,8 @@ class AlarmAlertPlayer(
             mediaPlayer.setWakeMode(appContext, PowerManager.PARTIAL_WAKE_LOCK)
             mediaPlayer.setDataSource(appContext, resolveUri(alert))
             mediaPlayer.isLooping = alert.sound.loop
-            mediaPlayer.setVolume(1f, 1f)
+            val startVolume = if (alert.sound.fadeInSeconds > 0) 0f else 1f
+            mediaPlayer.setVolume(startVolume, startVolume)
             mediaPlayer.setOnCompletionListener { stop() }
             mediaPlayer.setOnErrorListener { _, what, extra ->
                 Log.e(TAG, "MediaPlayer error what=$what extra=$extra")
@@ -75,6 +79,7 @@ class AlarmAlertPlayer(
             if (alert.sound.vibrate) {
                 startVibration()
             }
+            scheduleFade(alert)
             scheduleStop(alert)
             Log.i(TAG, "Playing alert ${alert.id} with USAGE_ALARM")
         } catch (error: Exception) {
@@ -159,9 +164,34 @@ class AlarmAlertPlayer(
         handler.postDelayed(runnable, seconds * 1000L)
     }
 
+    private fun scheduleFade(alert: Alert) {
+        val seconds = alert.sound.fadeInSeconds
+        if (seconds <= 0) return
+        val alertId = alert.id
+        val durationMs = seconds * 1000L
+        val startedAt = SystemClock.elapsedRealtime()
+        val runnable = object : Runnable {
+            override fun run() {
+                val mediaPlayer = synchronized(monitor) {
+                    if (activeId != alertId) return
+                    player
+                } ?: return
+                val volume = FadeIn.volume(SystemClock.elapsedRealtime() - startedAt, durationMs)
+                runCatching { mediaPlayer.setVolume(volume, volume) }
+                if (volume < 1f && currentAlertId() == alertId) {
+                    handler.postDelayed(this, FADE_STEP_MS)
+                }
+            }
+        }
+        fadeRunnable = runnable
+        handler.post(runnable)
+    }
+
     private fun cancelScheduledStop() {
         stopRunnable?.let { handler.removeCallbacks(it) }
         stopRunnable = null
+        fadeRunnable?.let { handler.removeCallbacks(it) }
+        fadeRunnable = null
     }
 
     private fun startVibration() {
@@ -214,5 +244,6 @@ class AlarmAlertPlayer(
 
     private companion object {
         const val TAG = "Adhan"
+        const val FADE_STEP_MS = 100L
     }
 }

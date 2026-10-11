@@ -27,6 +27,7 @@ object AlertJson {
         json.put("vibrate", alert.sound.vibrate)
         json.put("loop", alert.sound.loop)
         json.put("ringSeconds", alert.sound.ringSeconds)
+        json.put("fadeInSeconds", alert.sound.fadeInSeconds)
         if (alert.sound.soundUri != null) {
             json.put("soundUri", alert.sound.soundUri)
         }
@@ -63,6 +64,7 @@ object AlertJson {
             vibrate = if (json.has("vibrate")) json.getBoolean("vibrate") else true,
             loop = if (json.has("loop")) json.getBoolean("loop") else false,
             ringSeconds = if (json.has("ringSeconds")) json.getInt("ringSeconds").coerceIn(0, 600) else 0,
+            fadeInSeconds = fadeInSeconds(json),
         )
         val schedule = when (val kind = json.getString("scheduleKind")) {
             "TIME" -> Schedule.Time(
@@ -98,6 +100,14 @@ object AlertJson {
             enabled = if (json.has("enabled")) json.getBoolean("enabled") else true,
             label = if (json.has("label") && !json.isNull("label")) json.getString("label") else "",
         )
+    }
+
+    private fun fadeInSeconds(json: JSONObject): Int {
+        if (!json.has("fadeInSeconds") || json.isNull("fadeInSeconds")) return 0
+        return when (val seconds = json.getInt("fadeInSeconds")) {
+            4, 10 -> seconds
+            else -> 0
+        }
     }
 
     private fun JSONObject.optionalString(key: String): String? {
