@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_section_prayer"
+        android:shortcutId="prayer"
+        android:shortcutLongLabel="@string/tab_prayer"
+        android:shortcutShortLabel="@string/tab_prayer">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="com.adhan.app.icon.LauncherCrescent"
+            android:targetPackage="com.adhan.app">
+            <extra
+                android:name="com.adhan.app.extra.SECTION"
+                android:value="prayer" />
+        </intent>
+    </shortcut>
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_section_settings"
+        android:shortcutId="settings"
+        android:shortcutLongLabel="@string/tab_settings"
+        android:shortcutShortLabel="@string/tab_settings">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="com.adhan.app.icon.LauncherCrescent"
+            android:targetPackage="com.adhan.app">
+            <extra
+                android:name="com.adhan.app.extra.SECTION"
+                android:value="settings" />
+        </intent>
+    </shortcut>
+</shortcuts>
