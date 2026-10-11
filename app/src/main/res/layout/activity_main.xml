@@ -144,6 +144,14 @@
                     android:layout_marginTop="8dp"
                     android:text="@string/action_allow_battery"
                     android:visibility="gone" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/readinessCheckButton"
+                    style="@style/Widget.Adhan.Button.Outlined"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/action_reliability" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -476,6 +484,14 @@
             android:layout_marginTop="12dp"
             android:text="@string/action_pin_widget" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/reliabilityButton"
+            style="@style/Widget.Adhan.Button.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/action_reliability" />
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -640,6 +656,30 @@
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/ringSecondsInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/ringLimitWarning"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/ring_limit_warning"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
+            android:textColor="@color/secondary"
+            android:visibility="gone" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:hint="@string/hint_fade_in">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/fadeInInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="none" />

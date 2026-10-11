@@ -129,6 +129,10 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
+        <activity
+            android:name=".ui.ReliabilityActivity"
+            android:exported="false" />
+
         <receiver
             android:name=".widget.HomeWidgetProvider"
             android:exported="true"
@@ -169,8 +173,8 @@
             </intent-filter>
         </receiver>
 
-        <!-- shortService: a few minutes of alarm playback, not an idle
-             foreground service and not a media session. -->
+        <!-- shortService: about three minutes. onTimeout stops playback.
+             mediaPlayback was not selected; see AlarmPlaybackService. -->
         <service
             android:name=".scheduler.AlarmPlaybackService"
             android:exported="false"

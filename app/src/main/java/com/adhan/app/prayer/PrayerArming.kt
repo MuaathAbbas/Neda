@@ -8,6 +8,7 @@ import com.adhan.app.domain.AlertType
 import com.adhan.app.domain.Prayer
 import com.adhan.app.domain.Schedule
 import com.adhan.app.scheduler.PrayerDayRefresh
+import com.adhan.app.store.PrayerRefreshLog
 import com.adhan.app.store.PreferencesPrayerOffsetStore
 import com.adhan.app.store.PreferencesPrayerPlaceStore
 import com.adhan.app.store.PreferencesSoundChoiceStore
@@ -30,6 +31,7 @@ object PrayerArming {
         val coordinates = place.coordinates()
         if (coordinates == null) {
             clear(context)
+            PrayerRefreshLog(context).clear()
             PrayerDayRefresh.cancel(context)
             return
         }
@@ -53,6 +55,7 @@ object PrayerArming {
                 app.alertStore.remove(alert.id)
             }
             planned.forEach { alert -> app.alertStore.put(alert) }
+            PrayerRefreshLog(context).write(nowEpochMillis)
         } finally {
             PrayerDayRefresh.schedule(context, nowEpochMillis, zone)
         }

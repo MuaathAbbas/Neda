@@ -35,6 +35,7 @@ import com.adhan.app.domain.AlertType
 import com.adhan.app.domain.CoordinateText
 import com.adhan.app.domain.Prayer
 import com.adhan.app.domain.Schedule
+import com.adhan.app.domain.ShortServiceWindow
 import com.adhan.app.domain.TimeRepeat
 import com.adhan.app.domain.TimeTriggers
 import com.adhan.app.location.DeviceLocation
@@ -212,6 +213,8 @@ class MainActivity : AppCompatActivity() {
             binding.sections.selectedItemId = R.id.section_settings
         }
         binding.pinWidgetButton.setOnClickListener { pinHomeWidget() }
+        binding.reliabilityButton.setOnClickListener { openReliability() }
+        binding.readinessCheckButton.setOnClickListener { openReliability() }
         binding.useLocationButton.setOnClickListener {
             fillPlaceFields = false
             onUseLocation()
@@ -1079,8 +1082,40 @@ class MainActivity : AppCompatActivity() {
         binding.ringSecondsInput.setOnItemClickListener { _, _, _, _ ->
             sounds.setRingSeconds(selectedRing(binding.ringSecondsInput))
             SoundRole.entries.forEach { role -> sounds.applyTo(role, app.alertStore) }
+            updateRingWarning()
+        }
+        updateRingWarning()
+        val fadeLabels = fadeChoices.map { fadeLabel(it) }
+        bindDropdown(binding.fadeInInput, fadeLabels)
+        val savedFade = fadeChoices.firstOrNull { it == sounds.fadeInSeconds() } ?: 0
+        binding.fadeInInput.setText(fadeLabel(savedFade), false)
+        binding.fadeInInput.setOnItemClickListener { _, _, _, _ ->
+            sounds.setFadeInSeconds(selectedFade(binding.fadeInInput))
+            SoundRole.entries.forEach { role -> sounds.applyTo(role, app.alertStore) }
         }
         renderSoundNames()
+    }
+
+    private fun updateRingWarning() {
+        binding.ringLimitWarning.isVisible =
+            ShortServiceWindow.exceedsWindow(selectedRing(binding.ringSecondsInput))
+    }
+
+    private fun fadeLabel(seconds: Int): String {
+        return if (seconds == 0) {
+            getString(R.string.fade_off)
+        } else {
+            getString(R.string.fade_seconds, seconds)
+        }
+    }
+
+    private fun selectedFade(field: android.widget.AutoCompleteTextView): Int {
+        val text = field.text?.toString().orEmpty()
+        return fadeChoices.firstOrNull { fadeLabel(it) == text } ?: 0
+    }
+
+    private fun openReliability() {
+        startActivity(Intent(this, ReliabilityActivity::class.java))
     }
 
     private fun ringLabel(seconds: Int): String {
@@ -1498,6 +1533,7 @@ class MainActivity : AppCompatActivity() {
         const val KEY_SECTION = "section"
         val offsetChoices = listOf(0, 5, 10, 15, 20, 30, 45, 60)
         val ringChoices = listOf(0, 10, 15, 20, 30, 45, 60, 90, 120)
+        val fadeChoices = listOf(0, 4, 10)
         const val ALARM_ID_EXTRA = "com.adhan.app.extra.ALERT_ID"
         const val SECTION_EXTRA = "com.adhan.app.extra.SECTION"
 
